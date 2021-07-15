@@ -14,19 +14,6 @@ class Model {
     dio.options.connectTimeout = 15000; //15s
     dio.options.receiveTimeout = 3000;
   }
-
-  // Future<List<Item>> fetchData({limit = 20, page = 1}) async {
-  //   Response response = await dio.post('find-all', data: {"limit": limit, "page": page});
-  //   List<dynamic> _list = response.data["message"];
-  //   List<Item> listIteam = List<Item>();
-  //   Item _item;
-  //   _list.forEach((element) {
-  //     _item = Item.fromJson(element);
-  //     listIteam.add(_item);
-  //   });
-  //   return listIteam;
-  // }
-
   Future<List<City>> fetchCity() async {
     List<City> listCity = [];
     Response response = await dio.post("get-city");
@@ -36,6 +23,23 @@ class Model {
       listCity.add(_city);
     });
     return listCity;
+  }
+
+  // Fetch present city
+  Future<List<String>> fetchPresentCity() async {
+    List<String> listCity = [];
+    Response response = await dio.post("get-city-present", data: {"token": "123123"});
+    List<dynamic> _list = response.data['data']['arr_city'];
+    _list.forEach((element) {
+      listCity.add(element);
+    });
+    return listCity;
+  }
+
+  // Update city by check
+  Future<String> updateCityPresent({List<String> locations}) async {
+    Response response = await dio.post("update-city-notify", data: {"token": "123123", "diadiem" : locations});
+    return response.data['statuscode'].toString();
   }
 
   Future<List<City>> fetchMotobike() async {

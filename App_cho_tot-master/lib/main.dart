@@ -1,9 +1,6 @@
-import 'dart:collection';
 import 'dart:convert';
 
 import 'package:chotot/bindings.dart';
-import 'package:chotot/custom_rect_tween.dart';
-import 'package:chotot/hero_router.dart';
 import 'package:chotot/controller.dart';
 import 'package:chotot/shared_preferences_service.dart';
 import 'package:flutter/cupertino.dart';
@@ -15,13 +12,14 @@ import 'infomation.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
+  Get.put(Controller());
   runApp(GetMaterialApp(
     debugShowCheckedModeBanner: false,
       initialBinding: AppBindings(), home: Home()));
 }
 
 class Home extends StatelessWidget {
-  Controller _controller;
+  Controller _controller = Get.put(Controller());
   Map<String, String> status = {"1": "Chưa xem", "2": "Đã liên hệ", "3": "Đã bán", "4": "Không nghe máy", "5": "Đã xem"};
   Map<String, MaterialColor> statusColor = {"1": Colors.brown, "2": Colors.green, "3": Colors.red, "4": Colors.amber, "5": Colors.lightBlue};
   List<String> postBy = ["Tất cả", "Cá nhân", "Cửa hàng"];
@@ -29,6 +27,7 @@ class Home extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     _controller = Get.find();
+    print('Hello: ${_controller.listCity.value}');
     return Scaffold(
         backgroundColor: Color(0xfff6f6f6),
         appBar: AppBar(
@@ -81,9 +80,10 @@ class Home extends StatelessWidget {
                                   onTap: () async {
                                     final pref = await SharedPreferencesService.instance;
                                     var jsonString = pref.getCityFilter;
-                                    if (jsonString != null && jsonString.isNotEmpty) {
-                                      _controller.listCity.value = Map.from(json.decode(jsonString));
-                                    }
+                                    print(jsonDecode(jsonString));
+                                    // if (jsonString != null && jsonString.isNotEmpty) {
+                                    //   _controller.listCity.value = Map.from(json.decode(jsonString));
+                                    // }
                                     showDialog(
                                         context: context,
                                         builder: (context) {
@@ -407,10 +407,11 @@ class Home extends StatelessWidget {
               }).toList(),
             ),
           ),
-          MaterialButton(onPressed: () async {
-            final pref = await SharedPreferencesService.instance;
-            pref.saveCheckbox(json.encode(_controller.listCity.value));
+          MaterialButton(onPressed: () {
+            // final pref = await SharedPreferencesService.instance;
+            // pref.saveCheckbox(json.encode(_controller.listCity.value));
             Get.back();
+            // Call API fetch list motor bikes
             _controller.fetchData(
                 title: _controller.textEditingController.value.text,
                 loaiCH: _controller.loaiCH.value,
@@ -418,7 +419,10 @@ class Home extends StatelessWidget {
                 limit: 20,
                 typeMoto: _controller.selectType.value,
                 location: _controller.selectCity.value);
-          }, child: Text("Lọc"), color: Colors.yellow,)
+              // Call API update city present
+            print('Button Pressed: ${_controller.selectCity.value}');
+              _controller.updateCityPresent(_controller.selectCity.value);
+            }, child: Text("Lọc"), color: Colors.yellow,)
         ],
       ),
     );

@@ -22,10 +22,12 @@ class Controller extends GetxController {
   Rx<TextEditingController> textEditingController = Rx<TextEditingController>();
   Model model;
   Rx<Map<String,bool>> listCity = Rx<Map<String,bool>>();
+  Rx<List<String>> listPresentCity = Rx<List<String>>();
   Rx<String> selectCityString = Rx<String>();
   Rx<String> topic = Rx<String>();
   @override
   void onInit() {
+    print('sadasdasd');
     PushNotificationsManager().init().then((value){
       fetchData(page: 1, limit: 20);
     });
@@ -39,12 +41,30 @@ class Controller extends GetxController {
     init();
     model = Model();
     model.init();
+
+    // City fetching
     model.fetchCity().then((value) {
-      // value.insert(0, _city);
       value.forEach((element) {
         listCity.value[element.name] = true;
       });
+      listCity.obs;
+      print('List City after add: ${listCity.value}');
     });
+
+    // City present fetching
+    model.fetchPresentCity().then((value) {
+      if (value.isNotEmpty) {
+        listCity.value.forEach((key, value) {
+          listCity.value[key] = false;
+        });
+        value.forEach((element) {
+          listCity.value[element] = true;
+        });
+      }
+      print('CityPresent: $value');
+    });
+
+    // Motor bike fetching
     model.fetchMotobike().then((value) {
       value.insert(0, _city);
       listMoto.value = value;
@@ -105,6 +125,15 @@ class Controller extends GetxController {
     }
     listCity.refresh();
   }
+
+  // Update city present
+  updateCityPresent(List<String> locations) {
+    print('updateCityPresent() -- $locations');
+    model.updateCityPresent(locations: locations).then((value) {
+      print('Location updated: $locations');
+    });
+  }
+  // Fetch list motor bike
   fetchData({title,List<String> location, typeMoto, loaiCH, limit, int page}) {
     if (location == []) {
       location = null;
