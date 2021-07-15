@@ -35,9 +35,13 @@ class Model {
     Response response = await dio.post("get-city-present", data: {"token":"$token"});
     List<dynamic> _list = response.data['data']['arr_city'];
     print('sdfdsff ${response.data['data']['arr_city']}');
-    _list.forEach((element) {;
-      listCity.add(element);
-    });
+    if( _list != null || _list.isNotEmpty){
+      _list.forEach((element) {
+        listCity.add(element);
+      });
+
+    }
+
     return listCity;
   }
 
