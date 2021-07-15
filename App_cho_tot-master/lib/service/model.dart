@@ -4,10 +4,13 @@ import 'package:chotot/entity/city.dart';
 import 'package:chotot/entity/item.dart';
 import 'package:chotot/push_noti.dart';
 import 'package:dio/dio.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
 
 class Model {
   Dio dio = new Dio();
+  FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
+  static String token = "";
 
   init() {
     dio.options.baseUrl = 'http://45.32.113.69:4000/api/';
@@ -28,9 +31,11 @@ class Model {
   // Fetch present city
   Future<List<String>> fetchPresentCity() async {
     List<String> listCity = [];
-    Response response = await dio.post("get-city-present", data: {"token": "123123"});
+    token = await _firebaseMessaging.getToken();
+    Response response = await dio.post("get-city-present", data: {"token":"$token"});
     List<dynamic> _list = response.data['data']['arr_city'];
-    _list.forEach((element) {
+    print('sdfdsff ${response.data['data']['arr_city']}');
+    _list.forEach((element) {;
       listCity.add(element);
     });
     return listCity;
@@ -38,7 +43,9 @@ class Model {
 
   // Update city by check
   Future<String> updateCityPresent({List<String> locations}) async {
-    Response response = await dio.post("update-city-notify", data: {"token": "123123", "diadiem" : locations});
+    token = await _firebaseMessaging.getToken();
+    Response response = await dio.post("update-city-notify", data: {"token": "$token", "diadiem" : locations});
+    print('tOKEN : $token');
     return response.data['statuscode'].toString();
   }
 
